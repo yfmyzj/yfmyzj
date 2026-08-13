@@ -52,6 +52,14 @@ function loadSettings() {
 }
 function saveSettings() {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(settings)); } catch (e) {}
+  // 登录后把样式同步到后端 site.settings，让其他访客也能看到
+  if (token && site && site.name) {
+    clearTimeout(window._syncSettingsTimer);
+    window._syncSettingsTimer = setTimeout(async () => {
+      site.settings = { ...settings };
+      await apiSaveSite();
+    }, 600);
+  }
 }
 function loadToken() {
   try { return localStorage.getItem(TOKEN_KEY) || ""; } catch (e) { return ""; }
@@ -643,7 +651,16 @@ async function init() {
 
   // 从后端加载内容（失败则用 content.js 兜底，便于本地直接打开预览）
   const st = await apiGetState();
-  if (st && st.site && (st.site.name || st.site.sections)) { site = st.site; posts = st.posts || []; }
+  if (st && st.site && (st.site.name || st.site.sections)) {
+    site = st.site;
+    posts = st.posts || [];
+    // 如果服务端保存了样式设置，用它覆盖本地，让所有访客/换设备后都能一致
+    if (site.settings) {
+      settings = Object.assign({}, DEFAULTS, site.settings);
+      try { localStorage.setItem(STORE_KEY, JSON.stringify(settings)); } catch (e) {}
+      applySettings();
+    }
+  }
   renderNav(); renderHero(); renderAbout(); renderContent(); renderSettings(); renderAdminBar();
   updateGear();
 
