@@ -1,0 +1,13 @@
+{
+  "name": "yfmyzj-blog",
+  "version": "2.0.0",
+  "private": true,
+  "description": "yfmyzj 液态玻璃个人博客（Vercel 全栈版：内容存 Vercel KV，编辑实时对所有人可见）",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

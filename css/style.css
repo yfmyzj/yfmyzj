@@ -1,0 +1,384 @@
+/* =====================================================================
+ *  style.css  —  液态玻璃（glassmorphism）主题
+ *  大部分视觉都通过 :root 里的 CSS 变量控制，设置面板会动态修改它们。
+ * ===================================================================== */
+
+:root {
+  /* —— 这些变量会被「设置」面板实时修改并保存到本地 —— */
+  --accent: #6c8cff;                 /* 主题色（链接/按钮/高亮） */
+  --glass-blur: 16px;                /* 毛玻璃模糊强度 */
+  --glass-bg-light: rgba(255, 255, 255, 0.45);  /* 浅色模式玻璃底色 */
+  --glass-bg-dark: rgba(18, 22, 38, 0.45);       /* 深色模式玻璃底色 */
+  --glass-bg: var(--glass-bg-light);
+  --glass-border: rgba(255, 255, 255, 0.55);
+  --bg-image: linear-gradient(120deg, #a8c0ff 0%, #c2e9fb 100%); /* 默认背景 */
+
+  /* —— 文字等固定变量 —— */
+  --text: #1f2430;
+  --muted: #5b6472;
+  --radius: 20px;
+  --shadow: 0 8px 32px rgba(31, 38, 70, 0.18);
+  --maxw: 1100px;
+}
+
+/* 深色模式 */
+body.dark {
+  --glass-bg: var(--glass-bg-dark);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --text: #eef1f7;
+  --muted: #aab2c0;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  color: var(--text);
+  line-height: 1.7;
+  min-height: 100vh;
+  background: var(--bg-image);
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+  transition: background 0.6s ease, color 0.4s ease;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 背景渐变动起来（仅对渐变背景有效） */
+body:not([data-bg="image"])::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: inherit;
+  background-size: 200% 200%;
+  animation: drift 22s ease infinite;
+  z-index: -1;
+}
+@keyframes drift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* —— 玻璃面板通用类 —— */
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+}
+
+/* ============== 顶部导航 ============== */
+.nav {
+  position: sticky;
+  top: 16px;
+  z-index: 50;
+  margin: 16px auto;
+  max-width: var(--maxw);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.nav .brand {
+  font-weight: 700;
+  font-size: 18px;
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.nav .brand .handle { font-size: 12px; color: var(--muted); font-weight: 400; }
+.nav .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.nav .tab {
+  border: none;
+  background: transparent;
+  color: var(--text);
+  padding: 7px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.75;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.nav .tab:hover { opacity: 1; background: rgba(255,255,255,0.25); }
+.nav .tab.active {
+  opacity: 1;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+/* ============== 英雄区 ============== */
+.hero {
+  max-width: var(--maxw);
+  margin: 28px auto;
+  padding: 48px 36px;
+  text-align: center;
+}
+.hero img.avatar {
+  width: 110px; height: 110px;
+  border-radius: 50%;
+  border: 3px solid var(--glass-border);
+  box-shadow: var(--shadow);
+  object-fit: cover;
+  margin-bottom: 18px;
+}
+.hero h1 { margin: 6px 0; font-size: 34px; letter-spacing: 1px; }
+.hero .tagline { color: var(--muted); font-size: 16px; max-width: 620px; margin: 0 auto; }
+
+/* ============== 内容网格 ============== */
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 18px 60px; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 22px;
+}
+.card {
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(31,38,70,0.28); }
+.card .cover { width: 100%; height: 180px; object-fit: cover; display: block; }
+.card .body { padding: 18px 20px 22px; }
+.card .meta { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.card .tag {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  color: var(--accent);
+  padding: 2px 10px; border-radius: 999px; font-weight: 600;
+}
+.card h3 { margin: 4px 0 8px; font-size: 19px; }
+.card p.excerpt { margin: 0; color: var(--muted); font-size: 14px; }
+
+.empty { text-align: center; color: var(--muted); padding: 60px 0; }
+
+/* ============== 关于页 ============== */
+.about { max-width: 720px; margin: 10px auto; padding: 40px 34px; }
+.about h2 { margin-top: 0; }
+.about .bio { white-space: pre-line; font-size: 16px; }
+.about .socials { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 22px; }
+.about .socials a {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 16px; border-radius: 999px; font-size: 14px;
+}
+
+/* ============== 详情弹窗 ============== */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(10, 12, 25, 0.45);
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 40px 16px; overflow-y: auto;
+}
+.modal {
+  max-width: 760px; width: 100%;
+  padding: 34px 38px 40px;
+  position: relative;
+  animation: pop 0.3s ease;
+}
+@keyframes pop { from { opacity: 0; transform: translateY(16px) scale(0.98);} to { opacity:1; transform:none; } }
+.modal .close {
+  position: absolute; top: 16px; right: 18px;
+  border: none; background: transparent; font-size: 26px; cursor: pointer; color: var(--text);
+  line-height: 1;
+}
+.modal .cover-full { width: 100%; border-radius: 14px; margin: 14px 0 18px; }
+.modal h1 { margin: 6px 0; font-size: 28px; }
+.modal .meta { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+.modal .content h1, .modal .content h2, .modal .content h3 { margin: 1.2em 0 0.5em; }
+.modal .content p { margin: 0.7em 0; }
+.modal .content img { max-width: 100%; border-radius: 12px; margin: 10px 0; }
+.modal .content blockquote {
+  margin: 1em 0; padding: 10px 18px;
+  border-left: 4px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border-radius: 0 10px 10px 0; color: var(--muted);
+}
+.modal .content code {
+  background: rgba(127,127,127,0.18); padding: 2px 6px; border-radius: 6px; font-size: 0.92em;
+}
+.modal .content ul, .modal .content ol { padding-left: 22px; }
+
+/* ============== 设置面板 ============== */
+.gear {
+  position: fixed; right: 20px; bottom: 20px; z-index: 80;
+  width: 52px; height: 52px; border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  font-size: 22px; cursor: pointer; color: var(--text);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.3s ease;
+}
+.gear:hover { transform: rotate(40deg) scale(1.05); }
+.settings {
+  position: fixed; right: 20px; bottom: 84px; z-index: 90;
+  width: 300px; max-width: calc(100vw - 40px);
+  padding: 20px 22px;
+  transform: translateY(20px); opacity: 0; pointer-events: none;
+  transition: all 0.25s ease;
+}
+.settings.open { transform: none; opacity: 1; pointer-events: auto; }
+.settings h4 { margin: 14px 0 8px; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.settings .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 0; }
+.settings label { font-size: 14px; }
+.settings input[type="range"] { width: 140px; accent-color: var(--accent); }
+.settings input[type="color"] { width: 42px; height: 30px; border: none; background: none; cursor: pointer; }
+.settings input[type="text"] {
+  flex: 1; padding: 7px 10px; border-radius: 10px; border: 1px solid var(--glass-border);
+  background: rgba(255,255,255,0.3); color: var(--text); font-size: 13px;
+}
+.settings .swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+.settings .swatch {
+  width: 30px; height: 30px; border-radius: 8px; cursor: pointer; border: 2px solid transparent;
+}
+.settings .swatch.sel { border-color: #fff; box-shadow: 0 0 0 2px var(--accent); }
+.settings .btn {
+  width: 100%; margin-top: 14px; padding: 9px; border-radius: 10px; cursor: pointer;
+  border: 1px solid var(--glass-border); background: rgba(255,255,255,0.25); color: var(--text); font-size: 14px;
+}
+.settings .btn.reset { background: var(--accent); color: #fff; border: none; }
+.settings .toggle {
+  width: 46px; height: 26px; border-radius: 999px; background: rgba(127,127,127,0.4);
+  position: relative; cursor: pointer; transition: background 0.2s;
+}
+.settings .toggle::after {
+  content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px;
+  border-radius: 50%; background: #fff; transition: left 0.2s;
+}
+.settings .toggle.on { background: var(--accent); }
+.settings .toggle.on::after { left: 23px; }
+
+/* ============== 页脚 ============== */
+footer { text-align: center; color: var(--muted); font-size: 13px; padding: 30px 0 50px; }
+footer .glass { display: inline-block; padding: 12px 22px; }
+
+/* ============== 响应式 ============== */
+@media (max-width: 640px) {
+  .hero { padding: 32px 20px; }
+  .hero h1 { font-size: 27px; }
+  .nav { top: 8px; margin: 8px; }
+  .modal { padding: 26px 20px 30px; }
+}
+
+/* ============== 后台编辑（管理按钮 / 工具条 / 表单） ============== */
+.admin {
+  position: fixed; left: 20px; bottom: 20px; z-index: 80;
+  width: 52px; height: 52px; border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  font-size: 22px; cursor: pointer; color: var(--text);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.2s ease;
+}
+.admin:hover { transform: scale(1.08); }
+
+.admin-bar {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: 20px; z-index: 85; max-width: calc(100vw - 40px);
+  padding: 10px 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.admin-bar .ab-tip { font-size: 12px; color: var(--muted); margin-right: 4px; }
+.admin-bar .btn { margin: 0; width: auto; padding: 7px 12px; font-size: 13px; }
+
+.card { position: relative; }
+.card-actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; }
+.card-actions .ca {
+  width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer;
+  background: var(--accent); color: #fff; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25); opacity: 0.92;
+}
+.card-actions .ca:hover { opacity: 1; transform: scale(1.08); }
+.card-actions .ca.del { background: #e2574c; }
+
+/* 表单字段 */
+.field { margin: 12px 0; }
+.field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 5px; }
+.field input, .field select, .field textarea {
+  width: 100%; padding: 9px 11px; border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255,255,255,0.4); color: var(--text);
+  font-size: 14px; font-family: inherit; outline: none;
+}
+.field textarea { resize: vertical; line-height: 1.6; }
+.field input[type="file"] { margin-top: 6px; font-size: 12px; color: var(--muted); }
+body.dark .field input, body.dark .field select, body.dark .field textarea { background: rgba(255,255,255,0.08); }
+
+/* 表单里的按钮并排 */
+.row .btn { width: auto; margin-top: 0; flex: 1; }
+
+/* ============== 统一「液态玻璃」按钮 ============== */
+.gbtn {
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  color: var(--text); border-radius: 999px; cursor: pointer; box-shadow: var(--shadow);
+  transition: transform .2s ease, background .2s ease, box-shadow .2s ease, opacity .2s ease;
+}
+.gbtn:hover { transform: translateY(-2px); }
+
+/* 导航标签 → 玻璃 */
+.nav .tab { background: var(--glass-bg); border: 1px solid var(--glass-border); }
+.nav .tab:hover { background: var(--glass-bg); }
+.nav .tab.active {
+  background: var(--accent); color: #fff; border-color: transparent;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+/* 通用按钮 .btn → 玻璃 */
+.btn {
+  background: var(--glass-bg); border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  border-radius: 999px; box-shadow: var(--shadow);
+}
+.btn.reset { background: var(--accent); color: #fff; border: none; }
+.btn:hover { transform: translateY(-2px); }
+
+/* 卡片操作钮 → 玻璃圆钮 */
+.card-actions .ca {
+  background: var(--glass-bg); color: var(--accent);
+  border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  backdrop-filter: blur(8px) saturate(140%); box-shadow: var(--shadow);
+}
+.card-actions .ca.del { color: #e2574c; }
+
+/* 弹窗关闭钮 → 玻璃圆钮 */
+.modal .close {
+  background: var(--glass-bg); border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  width: 34px; height: 34px; border-radius: 50%; box-shadow: var(--shadow);
+}
+
+/* ============== 自由布局（自定义大小 / 位置） ============== */
+.free-abs { z-index: 5; }
+.layout-mode .grid { position: relative; min-height: 120vh; }
+.free-bar {
+  position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+  background: var(--accent); color: #fff; font-size: 11px; line-height: 1;
+  padding: 3px 11px; border-radius: 999px; cursor: grab; user-select: none;
+  box-shadow: var(--shadow); white-space: nowrap; z-index: 3;
+}
+.free-bar:active { cursor: grabbing; }
+.free-resize {
+  position: absolute; right: -2px; bottom: -2px; width: 22px; height: 22px;
+  cursor: nwse-resize; z-index: 3;
+  background: linear-gradient(135deg, transparent 46%, var(--accent) 46%, var(--accent) 60%, transparent 60%);
+  border-bottom-right-radius: var(--radius);
+}
+.layout-mode .free { outline: 2px dashed var(--accent); outline-offset: 4px; }
+.modal.free { z-index: 110; }

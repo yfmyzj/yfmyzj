@@ -1,0 +1,8 @@
+# 隐私 / 项目记忆（切勿提交）
+.workbuddy/
+data/
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
+test_local.js

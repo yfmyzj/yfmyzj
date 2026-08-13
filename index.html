@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>一分没有真君</title>
+  <meta name="description" content="一分没有真君的个人博客" />
+  <link rel="icon" href="images/avatar.svg" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body data-bg="gradient">
+
+  <!-- 顶部导航（由 JS 渲染） -->
+  <nav class="nav glass" id="nav"></nav>
+
+  <!-- 英雄区 -->
+  <header class="hero glass" id="hero"></header>
+
+  <!-- 内容区 -->
+  <main class="wrap">
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="empty" style="display:none;">这个板块还没有内容～</div>
+  </main>
+
+  <!-- 关于页（默认隐藏） -->
+  <section class="about glass" id="about" style="display:none;"></section>
+
+  <!-- 详情弹窗挂载点 -->
+  <div id="modalRoot"></div>
+
+  <!-- 设置按钮 + 面板 -->
+  <button class="gear glass" id="gear" title="自定义样式">⚙️</button>
+  <aside class="settings glass" id="settings"></aside>
+
+  <!-- 网站后台编辑：管理按钮 + 工具条 + 表单挂载点 -->
+  <button class="admin glass" id="adminBtn" title="管理内容">✎</button>
+  <div class="admin-bar glass" id="adminBar" style="display:none;"></div>
+  <div id="formRoot"></div>
+
+  <footer>
+    <span class="glass">© <span id="year"></span> 一分没有真君 · yfmyzj · 由 WorkBuddy 打造</span>
+  </footer>
+
+  <!-- 先加载内容数据，再加载渲染逻辑（顺序不能反） -->
+  <script src="js/content.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
