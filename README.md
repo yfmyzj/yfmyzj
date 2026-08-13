@@ -2,7 +2,7 @@
 
 一套液态玻璃（glassmorphism）风格的个人博客，**两套运行模式**：
 
-- **Vercel 全栈版（推荐，编辑实时可见）**：内容存在服务器（Vercel KV），你登录后改动**立刻对所有人可见**，不用再导出。
+- **Vercel 全栈版（推荐，编辑实时可见）**：内容存在服务器（免费 Upstash Redis），你登录后改动**立刻对所有人可见**，不用再导出。
 - **纯静态版（零依赖）**：双击 `index.html` 即可看，部署到任意静态托管；在线编辑的内容存在本机浏览器，需「导出部署文件」才能让访客看到。
 
 > 目录默认就是你的真实内容（`js/content.js`），首次部署会自动导入。
@@ -70,30 +70,37 @@ README.md         本说明
 
 代码已 `git init` 并提交（`.workbuddy/` 等隐私目录已被 `.gitignore` 排除）。
 
-### 第 1 步：在 GitHub 建空仓库
-1. 打开 https://github.com/new → 填仓库名（如 `yfmyzj-blog`）→ 选 **Public** → **不要**勾选 "Add a README"，直接 Create repository。
-2. 页面会给出类似 `https://github.com/<你的用户名>/yfmyzj-blog.git` 的地址。
+### 第 1 步：在 GitHub 建空仓库（已建可跳过）
+1. 打开 https://github.com/new → 填仓库名（如 `yfmyzj`）→ 选 **Public** → **不要**勾选 "Add a README"，直接 Create repository。
 
-### 第 2 步：把本地代码推上去
+### 第 2 步：把本地代码推上去（已推可跳过）
 在本项目目录（`D:\ai\2026-08-13-23-11-11`）打开终端，执行：
 ```bash
 git branch -M main
-git remote add origin https://github.com/<你的用户名>/yfmyzj-blog.git
+git remote add origin https://github.com/<你的用户名>/yfmyzj.git
 git push -u origin main
 ```
 > 推送时若要求账号密码：用户名填 GitHub 账号，**密码用 Personal Access Token**（GitHub 设置 → Developer settings → Tokens 生成，勾 repo 权限），不能用网页登录密码。
 
-### 第 3 步：Vercel 导入并绑定
-1. 打开 https://vercel.com → 用 GitHub 登录 → **Add New → Project** → 选刚才的 `yfmyzj-blog` 仓库 → Import。
-2. Framework 选 **Other**，其余默认 → Deploy（先让它跑通）。
-3. 进入项目 **Storage → Create → KV Database** 建一个 → 点 **Connect** 到本项目（自动注入 `KV_REST_API_URL` / `KV_REST_API_TOKEN`）。
-4. 进入项目 **Settings → Environment Variables** 加两项：
+### 第 3 步：Vercel 导入并配置数据库（推荐免费 Upstash Redis）
+1. 打开 https://vercel.com → 用 GitHub 登录 → **Add New → Project** → 选 `yfmyzj` 仓库 → Import。
+2. Framework 选 **Other**，其余默认 → Deploy（先让它跑通；此时因没配数据库会报错，属正常）。
+3. **建免费数据库（Upstash Redis，无需信用卡）**：
+   - 打开 https://upstash.com → 用 GitHub 登录（免费注册）→ **Create Database → Redis** → 起名（如 `yfmyzj-kv`）→ Region 选离你近的（如 Singapore / Tokyo）→ Create。
+   - 建好后进入数据库详情，找到 **REST API** 区，复制两项：
+     - `UPSTASH_REDIS_REST_URL`（形如 `https://xxx.upstash.io`）
+     - `UPSTASH_REDIS_REST_TOKEN`（一长串）
+4. 回 Vercel 项目 **Settings → Environment Variables** 添加 4 项（建议 Production / Preview / Development 全勾）：
+   - `KV_REST_API_URL` = 上面复制的 `UPSTASH_REDIS_REST_URL` 值
+   - `KV_REST_API_TOKEN` = 上面复制的 `UPSTASH_REDIS_REST_TOKEN` 值
    - `ADMIN_PASS` = 你的登录密码（建议改掉默认 `yfmyzjnb666`）
    - `AUTH_SECRET` = 任意一串随机长字符（用于登录令牌签名）
-5. 改完点 **Redeploy**（或重新 Deploy），让环境变量与 KV 生效。
+5. 回到 **Deployments** → 最新一次 → ⋯ → **Redeploy**，让环境变量生效。
+
+> 代码已兼容 `KV_REST_API_URL` 与 `UPSTASH_REDIS_REST_URL` 两种变量名。用 Vercel 自带 KV 也行（变量名同为 `KV_REST_API_URL`/`KV_REST_API_TOKEN`），但 Vercel KV 可能需付费；Upstash 免费层对个人博客足够（每月约 1 万命令额度）。
 
 ### 第 4 步：完成
-- 打开 Vercel 给你的域名（如 `yfmyzj-blog.vercel.app`），首次访问会自动把 `js/content.js` 导入 KV 作为初始内容。
+- 打开 Vercel 给你的域名（如 `yfmyzj.vercel.app`），首次访问会自动把 `js/content.js` 导入数据库作为初始内容。
 - 之后登录 `admin` 改内容（含图片），**立刻对所有人可见**，无需再导出。
 
 > 内容按文章分键存入 KV，已避开单值 ~512KB 上限；但**单篇文章**（含内嵌 base64 图片）若超过约 500KB 仍可能失败——超大图建议用外链或 Vercel Blob。
